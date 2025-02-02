@@ -1,0 +1,6 @@
+@crypto_app_HostAddress = http://localhost:5103
+
+GET {{crypto_app_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
