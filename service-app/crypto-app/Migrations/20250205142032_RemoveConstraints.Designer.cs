@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using crypto_app.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using crypto_app.Infrastructure.Data;
 namespace crypto_app.Migrations
 {
     [DbContext(typeof(CCDbContext))]
-    partial class CCDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250205142032_RemoveConstraints")]
+    partial class RemoveConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -260,11 +263,17 @@ namespace crypto_app.Migrations
                     b.Property<Guid>("ApplicationUserId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("CountryId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDateTime")
                         .HasColumnType("datetime");
+
+                    b.Property<Guid>("CurrencyId")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("TEXT");
@@ -281,6 +290,9 @@ namespace crypto_app.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("LanguageId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -305,6 +317,12 @@ namespace crypto_app.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("CurrencyId");
+
+                    b.HasIndex("LanguageId");
+
                     b.ToTable("Users");
                 });
 
@@ -327,7 +345,31 @@ namespace crypto_app.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("crypto_app.Core.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("crypto_app.Core.Entities.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("crypto_app.Core.Entities.Language", "Language")
+                        .WithMany()
+                        .HasForeignKey("LanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ApplicationUser");
+
+                    b.Navigation("Country");
+
+                    b.Navigation("Currency");
+
+                    b.Navigation("Language");
                 });
 #pragma warning restore 612, 618
         }
