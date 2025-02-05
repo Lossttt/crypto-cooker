@@ -38,23 +38,23 @@ namespace crypto_app.Core.Entities.Users
         [ForeignKey(nameof(ApplicationUserId))]
         public ApplicationUser ApplicationUser { get; set; }
 
-        [Required]
-        public Guid LanguageId { get; set; }
+        // [Required]
+        // public Guid LanguageId { get; set; }
 
-        [ForeignKey(nameof(LanguageId))]
-        public Language Language { get; set; }
+        // [ForeignKey(nameof(LanguageId))]
+        // public Language Language { get; set; }
 
-        [Required]
-        public Guid CurrencyId { get; set; }
+        // [Required]
+        // public Guid CurrencyId { get; set; }
 
-        [ForeignKey(nameof(CurrencyId))]
-        public Currency Currency { get; set; }
+        // [ForeignKey(nameof(CurrencyId))]
+        // public Currency Currency { get; set; }
 
-        [Required]
-        public Guid CountryId { get; set; }
+        // [Required]
+        // public Guid CountryId { get; set; }
 
-        [ForeignKey(nameof(CountryId))]
-        public Country Country { get; set; }
+        // [ForeignKey(nameof(CountryId))]
+        // public Country Country { get; set; }
 
         public DateTime? DateOfBirth { get; set; }
     }

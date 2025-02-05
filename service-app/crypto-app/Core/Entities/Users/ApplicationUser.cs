@@ -10,13 +10,13 @@ namespace crypto_app.Core.Entities.Users
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
-        private string _applicationAccessCode;
+        private string? _applicationAccessCode;
 
         [Required]
         [StringLength(6, MinimumLength = 6)] 
         public string ApplicationAccessCode
         {
-            get => _applicationAccessCode;
+            get => _applicationAccessCode?? string.Empty;
             set => _applicationAccessCode = HashAccessCode(value);
         }
 
@@ -24,6 +24,11 @@ namespace crypto_app.Core.Entities.Users
         public DateTime? LastLogin { get; set; }
 
         // TODO: Tokens
+        public string? LoginToken { get; set; }
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set;}
+
 
         private string HashAccessCode(string accessCode)
         {
