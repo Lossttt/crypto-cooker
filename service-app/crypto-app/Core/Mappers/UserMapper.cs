@@ -37,12 +37,12 @@ namespace crypto_app.Core.Mappers
         {
             return new User
             {
-                FirstName = request.FirstName,
-                AdditionalName = request.AdditionalName,
-                LastName = request.LastName,
                 EmailAddress = request.Email,
                 PhoneNumber = request.PhoneNumber,
                 ApplicationUserId = appUserId,
+                // FirstName = request.FirstName,
+                // AdditionalName = request.AdditionalName,
+                // LastName = request.LastName,
                 // LanguageId = request.LanguageId,
                 // CurrencyId = request.CurrencyId,
                 // CountryId = request.CountryId
@@ -54,9 +54,7 @@ namespace crypto_app.Core.Mappers
             return new UserRegistrationResponse
             {
                 UserId = appUser.Id.ToString(),
-                Email = appUser.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName
+                Email = appUser.Email!,
             };
         }
     }

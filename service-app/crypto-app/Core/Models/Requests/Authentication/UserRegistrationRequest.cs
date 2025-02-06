@@ -7,29 +7,29 @@ namespace crypto_app.Core.Models.Requests.Authentication
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 6)]
-        public string Password { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string FirstName { get; set; }
-
-        [StringLength(100)]
-        public string? AdditionalName { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string LastName { get; set; }
+        public required string Password { get; set; }
 
         [Required]
         [StringLength(15)]
-        public string PhoneNumber { get; set; }
+        public required string PhoneNumber { get; set; }
 
-        [StringLength(100)]
-        public DateTime? DateOfBirth { get; set; }
+        // [Required]
+        // [StringLength(100)]
+        // public string FirstName { get; set; }
+
+        // [StringLength(100)]
+        // public string? AdditionalName { get; set; }
+
+        // [Required]
+        // [StringLength(100)]
+        // public string LastName { get; set; }
+
+        // [StringLength(100)]
+        // public DateTime? DateOfBirth { get; set; }
         // [Required]
         // public Guid LanguageId { get; set; }
 

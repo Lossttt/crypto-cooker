@@ -77,7 +77,14 @@ namespace crypto_app.Controllers
 
                 if (result.isSuccess)
                 {
-                    return CreatedAtAction(nameof(Register), result.response);
+                    var userRegistrationResponse = new UserRegistrationResponse
+                    {
+                        UserId = result.response.UserId,
+                        Email = result.response.Email
+                    };
+
+                    return CreatedAtAction(nameof(Register), new { id = userRegistrationResponse.UserId }, userRegistrationResponse);
+
                 }
                 else
                 {
