@@ -32,7 +32,7 @@ namespace _404ChatApp
             {
                 options.AddPolicy(MyAllowSpecificOrigins, builder =>
                 {
-                    builder.AllowAnyOrigin()
+                    builder.WithOrigins("https://3bc9-188-90-32-159.ngrok-free.app")
                            .AllowAnyMethod()
                            .AllowAnyHeader();
                 });
