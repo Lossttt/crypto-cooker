@@ -27,7 +27,7 @@ const Routes = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Signup"
+        name="Register"
         component={SignupScreen}
         options={{ headerShown: false }}
       />
