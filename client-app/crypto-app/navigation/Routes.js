@@ -5,6 +5,7 @@ import SplashScreen from '../screens/SplashScreen';
 
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,11 @@ const Routes = () => {
       <Stack.Screen
         name="Register"
         component={SignupScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ResetPassword"
+        component={ResetPasswordScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
