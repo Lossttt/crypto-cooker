@@ -25,6 +25,7 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const [secureEntry, setSecureEntry] = useState(true);
     const [loading, setLoading] = useState(false);
+    const animationUrl = require("../assets/animations/airplane-loader.json");
 
     const handleGoBack = () => {
         navigation.goBack();
@@ -40,7 +41,8 @@ const LoginScreen = () => {
         const request: SignInRequest = { email, password };
         const validationError = validateSignInRequest(request);
         if (validationError) {
-            Alert.alert('Validation Error', validationError);
+            Alert.alert('Oops something went wrong..', validationError);
+            setLoading(false);
             return;
         }
 
@@ -52,17 +54,17 @@ const LoginScreen = () => {
                     navigation.navigate("LandingPage");
                 }, 2000);
             } else {
-                Alert.alert('Login Failed', response.message);
+                Alert.alert('Oops!.. Login failed', response.message);
                 setLoading(false);
             }
         } catch (error) {
-            Alert.alert('Login Failed', 'An error occurred during login. Please try again.');
+            Alert.alert('Oops!.. Login failed', 'An error occurred during login. Please try again.');
             setLoading(false);
         }
     };
 
     if (loading) {
-        return <LoadingScreen title="Logging In" message="You will be redirected shortly" />;
+        return <LoadingScreen title="Logging In" message="You will be redirected shortly" animationUrl={animationUrl} />;
     }
     
     return (
@@ -105,7 +107,7 @@ const LoginScreen = () => {
                 </View>
 
                 <TouchableOpacity>
-                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                    <Text style={styles.forgotPasswordText} onPress={() => navigation.navigate("ResetPassword")}>Forgot Password?</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.loginButtonWrapper} onPress={handleSignIn}>
@@ -186,6 +188,7 @@ const styles = StyleSheet.create({
         color: theme.primaryColor,
         fontFamily: fonts.SemiBold,
         marginVertical: 10,
+        marginRight: 5,
     },
     loginButtonWrapper: {
         backgroundColor: theme.buttonBackground,

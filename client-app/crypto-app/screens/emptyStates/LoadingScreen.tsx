@@ -8,13 +8,14 @@ import { fonts } from '../../shared/styles/font';
 interface LoadingScreenProps {
     title: string;
     message: string;
+    animationUrl: string;
 }
 
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, message }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, message, animationUrl }) => {
     return (
         <View style={styles.container}>
             <LottieView
-                source={require("../../assets/animations/airplane-loader.json")}
+                source={animationUrl}
                 autoPlay
                 loop
                 style={styles.animation}
