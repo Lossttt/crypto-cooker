@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Text, Animated } from 'react-native';
 import LottieView from 'lottie-react-native';
+import { fonts } from '../shared/styles/font';
 
 const SplashScreen = ({ navigation }) => {
     useEffect(() => {
@@ -34,8 +35,8 @@ const styles = StyleSheet.create({
         height: 200,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 25,
+        fontWeight: fonts.SemiBold,
         color: '#000',
         marginTop: 20,
     },
