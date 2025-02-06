@@ -12,15 +12,20 @@ namespace crypto_app.Config.Installers
         {
             // Services
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IEmailService, EmailService>();
+            
+            // Factories
             services.AddScoped<IJwtFactory, JwtFactory>();
             services.AddScoped<ITokenFactory, TokenFactory>();
-
+            
             // Repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IJwtTokenHandler, JwtTokenHandler>();
 
             // Options
             services.Configure<JwtOptions>(configuration.GetSection("JwtOptions"));
+            services.Configure<EmailOptions>(configuration.GetSection("EmailOptions"));
         }
     }
 }
