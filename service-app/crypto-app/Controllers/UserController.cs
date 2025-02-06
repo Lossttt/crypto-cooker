@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using crypto_app.Config.API;
 using crypto_app.Core.Constants;
 using crypto_app.Core.Models.Requests.Authentication;
+using crypto_app.Core.Models.Requests.PasswordReset;
 using crypto_app.Core.Models.Responses.Authentication;
 using crypto_app.Core.Models.Responses.User;
+using crypto_app.Infrastructure.Repositories.Interfaces;
 using crypto_app.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +20,22 @@ namespace crypto_app.Controllers
     {
 
         private readonly IAuthService _authService;
+        private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IAuthService authService, ILogger<UserController> logger)
+        public UserController(
+            IAuthService authService,
+            ITokenService tokenService,
+            IEmailService emailService,
+            IUserRepository userRepository, 
+            ILogger<UserController> logger)
         {
             _authService = authService;
+            _tokenService = tokenService;
+            _emailService = emailService;
+            _userRepository = userRepository;
             _logger = logger;
         }
 
@@ -95,6 +108,87 @@ namespace crypto_app.Controllers
             {
                 _logger.LogError(LogEvent.Processing, e, "General error while registering user");
                 return BadRequest();
+            }
+        }
+
+        [HttpPost(ApiRoutes.Users.RequestPasswordReset)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] PasswordResetRequest request)
+        {
+            try
+            {
+                var user = _userRepository.FindAppUserByEmail(request.Email);
+                if (user == null)
+                {
+                    return BadRequest(new { Message = "Email not found" });
+                }
+                var appUser = _userRepository.FindUserByAppUserId(user.Id);
+                var appUserFirstName = appUser.FirstName ?? "User";
+
+                if (string.IsNullOrEmpty(appUser.EmailAddress))
+                {
+                    return BadRequest(new { Message = "User email address is invalid." });
+                }
+
+                _logger.LogInformation($"Password reset requested for {request.Email} by {appUserFirstName}");
+                var code = _tokenService.GeneratePasswordResetToken(user);
+                await _emailService.SendPasswordResetEmailAsync(appUser.EmailAddress!, code, appUserFirstName);
+
+                return Ok(new { Message = "Password reset email has been sent." });
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while requesting password reset.");
+                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+            }
+        }
+
+        [HttpPost(ApiRoutes.Users.VerifyResetToken)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyResetToken([FromBody] VerifyResetTokenRequest request)
+        {
+            try
+            {
+                var isValid = await _tokenService.VerifyPasswordResetTokenAsync(request.Email, request.Token);
+                if (!isValid)
+                {
+                    return BadRequest(new { Message = "Invalid or expired token" });
+                }
+
+                return Ok(new { Message = "Token is valid" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while verifying reset token.");
+                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+            }
+        }
+
+        [HttpPost(ApiRoutes.Users.ResetPassword)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            try
+            {
+                var result = await _authService.ResetPasswordAsync(request.Email, request.Token, request.NewPassword);
+                if (!result)
+                {
+                    return BadRequest(new { Message = "Password reset failed" });
+                }
+
+                return Ok(new { Message = "Password reset successful" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while resetting password.");
+                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
             }
         }
     }
