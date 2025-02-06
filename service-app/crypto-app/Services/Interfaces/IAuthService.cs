@@ -10,6 +10,7 @@ namespace crypto_app.Services.Interfaces
         Task<(bool isSuccess, TokenDto response, DateTime? lastLogin)> Authenticate(UserLoginRequest request);
         Task<string> GenerateJwtTokenAsync(ApplicationUser user);
         Task<(bool isSuccess, UserRegistrationResponse response, string? errorMessage)> RegisterUserAsync(UserRegistrationRequest request);
+        Task<bool> ResetPasswordAsync(string email, string token, string newPassword);
 
     }
 }
