@@ -1,15 +1,8 @@
-import { SignInRequest, SignInResponse } from '../types/user/signInTypes';
 import { SignUpRequest, SignUpResponse } from '../types/user/SignUpTypes';
-import { apiService } from './apiService';
+import { apiEnvironment } from '../config/apiConfig';
+import axios from 'axios';
 
-
-// SignUp Method
 export const signUp = async (data: SignUpRequest): Promise<SignUpResponse> => {
-  const response = await apiService.post<SignUpResponse>('/signup', data);
-  return response.data;
-};
-
-export const signIn = async (data: SignInRequest): Promise<SignInResponse> => {
-  const response = await apiService.post<SignInResponse>('/signin', data);
+  const response = await axios.post<SignUpResponse>(`${apiEnvironment.service_app_public_url}/users/register`, data);
   return response.data;
 };
