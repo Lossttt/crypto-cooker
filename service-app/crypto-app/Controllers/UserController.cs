@@ -52,12 +52,18 @@ namespace crypto_app.Controllers
                     return BadRequest(new AuthFailedResponse { Message = "Username or password is incorrect" });
                 }
             }
-            catch (Exception e)
+            catch (ArgumentNullException argEx)
             {
-                _logger.LogError(LogEvent.Processing, e, "General error while authenticating");
-                return BadRequest();
+                _logger.LogError(argEx, "Authentication failed: Missing required parameters.");
+                return BadRequest(new { Message = "Missing required parameters." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(LogEvent.Processing, ex, "General error while authenticating.");
+                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
             }
         }
+
 
         [HttpPost(ApiRoutes.Users.Register)]
         [ProducesResponseType(StatusCodes.Status201Created)]

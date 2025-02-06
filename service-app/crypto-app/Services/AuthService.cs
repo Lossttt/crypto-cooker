@@ -21,6 +21,7 @@ namespace crypto_app.Services
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenFactory _tokenFactory;
         private readonly IJwtFactory _jwtFactory;
+        private readonly ILogger<AuthService> _logger;
         private const double EXPIRE_DEFAULT = 5;
 
         public AuthService(
@@ -29,7 +30,8 @@ namespace crypto_app.Services
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ITokenFactory tokenFactory,
-            IJwtFactory jwtFactory)
+            IJwtFactory jwtFactory,
+            ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _configuration = configuration;
@@ -37,29 +39,43 @@ namespace crypto_app.Services
             _signInManager = signInManager;
             _tokenFactory = tokenFactory;
             _jwtFactory = jwtFactory;
+            _logger = logger;
         }
 
         public async Task<(bool isSuccess, TokenDto response, DateTime? lastLogin)> Authenticate(UserLoginRequest request)
         {
-            var appUser = _userRepository.FindAppUserByEmail(request.Email);
-            var user = GetUserByAppUserId(appUser.Id);
-            if (appUser != null)
+            try
             {
-                // validate password
+                var appUser = _userRepository.FindAppUserByEmail(request.Email);
+                if (appUser == null)
+                {
+                    return (false, null, null);
+                }
+
+                var user = GetUserByAppUserId(appUser.Id);
+                if (user == null)
+                {
+                    return (false, null, null);
+                }
+
                 if (await _userRepository.CheckPassword(request.Email, request.Password))
                 {
                     var lastLogin = appUser.LastLogin;
 
-                    // Update LastLogin to the current time
                     appUser.LastLogin = DateTime.UtcNow;
                     await _userRepository.UpdateAppUser(appUser);
 
                     var tokenDto = await GenerateTokenDto(appUser, user);
                     return (true, tokenDto, lastLogin);
                 }
-            }
 
-            return (false, null, null);
+                return (false, null, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred during authentication.");
+                return (false, null, null);
+            }
         }
 
         private async Task<TokenDto> GenerateTokenDto(ApplicationUser appUser, User user)

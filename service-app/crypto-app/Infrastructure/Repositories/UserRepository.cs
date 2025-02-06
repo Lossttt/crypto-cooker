@@ -50,9 +50,24 @@ namespace crypto_app.Infrastructure.Repositories
 
         public async Task<bool> CheckPassword(string userName, string password)
         {
-            var appUser = await _userManager.FindByNameAsync(userName);
-            return await _userManager.CheckPasswordAsync(appUser, password);
+            try
+            {
+                var appUser = await _userManager.FindByNameAsync(userName);
+
+                if (appUser == null)
+                {
+                    return false;
+                }
+
+                return await _userManager.CheckPasswordAsync(appUser, password);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while checking password for user: {UserName}", userName);
+                return false;
+            }
         }
+
 
         public ApplicationUser FindAppUserByEmail(string userEmail)
         {
