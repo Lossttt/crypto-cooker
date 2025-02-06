@@ -12,16 +12,14 @@ namespace crypto_app.Core.Entities.Users
         [Key]
         public Guid Id { get; set; }
 
-        [Required]
         [StringLength(100)]
-        public required string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [StringLength(100)]
         public string? AdditionalName { get; set; }
 
-        [Required]
         [StringLength(100)]
-        public required string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [Required]
         [StringLength(15)]

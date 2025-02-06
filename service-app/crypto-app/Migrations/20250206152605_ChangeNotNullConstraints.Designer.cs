@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using crypto_app.Infrastructure.Data;
 
@@ -10,9 +11,11 @@ using crypto_app.Infrastructure.Data;
 namespace crypto_app.Migrations
 {
     [DbContext(typeof(CCDbContext))]
-    partial class CCDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250206152605_ChangeNotNullConstraints")]
+    partial class ChangeNotNullConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -275,6 +278,7 @@ namespace crypto_app.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
@@ -282,6 +286,7 @@ namespace crypto_app.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
