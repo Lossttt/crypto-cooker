@@ -26,10 +26,17 @@ const ResetPasswordScreen = () => {
         setLoading(true);
 
         try {
-            const response = await authService.resetPassword({ email });
+            const response = await authService.resetPassword(email);
+            console.log(response);
 
-            if (response.success) {
+            if (response.message) {
                 setMessage('A reset email has been sent to your email address with further instructions.');
+
+                setTimeout(() => {
+                    console.log('Navigating to ConfirmCode screen with email:', email);
+                    navigation.navigate('ConfirmCode', { email });
+                }, 2000);
+
             } else {
                 Alert.alert('Oops!.. Something went wrong', response.message);
             }
@@ -46,6 +53,9 @@ const ResetPasswordScreen = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.iconWrapper}>
+                <Ionicons name="finger-print" size={50} color={theme.primaryColor} />
+            </View>
             <TouchableOpacity style={styles.backButtonWrapper} onPress={handleGoBack}>
                 <Ionicons name="arrow-back-outline" color={theme.primary} size={25} />
             </TouchableOpacity>
@@ -89,6 +99,18 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 20,
         left: 20,
+    },
+    iconWrapper: {
+        borderWidth: 1,
+        borderColor: theme.gray,
+        borderRadius: 15,
+        padding: 10,
+        width: 70,
+        height: 70,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        alignSelf: 'center',
     },
     headingText: {
         fontSize: 28,
