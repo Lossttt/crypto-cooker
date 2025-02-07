@@ -28,7 +28,7 @@ const LandingScreen = () => {
                 <Text style={styles.subtitle}>Your hub for tracking and analyzing the crypto market with Crypto Cooker</Text>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('Signup')}  // Navigate to the signup screen
+                    onPress={() => navigation.navigate('Register')}  // Navigate to the signup screen
                 >
                     <Text style={styles.buttonText}>Get Started!</Text>
                 </TouchableOpacity>

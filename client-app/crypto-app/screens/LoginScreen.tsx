@@ -83,7 +83,7 @@ const LoginScreen = () => {
                     <Ionicons name="mail-outline" size={20} color={theme.secondary} />
                     <TextInput
                         style={styles.textInput}
-                        placeholder="Enter your email"
+                        placeholder="Email"
                         placeholderTextColor={theme.secondary}
                         keyboardType="email-address"
                         value={email}
@@ -95,7 +95,7 @@ const LoginScreen = () => {
                     <SimpleLineIcons name="lock" size={20} color={theme.secondary} />
                     <TextInput
                         style={styles.textInput}
-                        placeholder="Enter your password"
+                        placeholder="Password"
                         placeholderTextColor={theme.secondary}
                         secureTextEntry={secureEntry}
                         value={password}
