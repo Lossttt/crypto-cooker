@@ -3,6 +3,7 @@ export const theme = {
     textPrimary: '#1C1C1C',
     textSecondary: '#616161',
     buttonBackground: '#45484A',
+    backgroundColor: '#45484A',
     primaryColor: '#45484A',
     secondaryColor: '#AEB5BB',
     buttonText: '#FFFFFF',

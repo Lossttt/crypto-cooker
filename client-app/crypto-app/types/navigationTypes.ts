@@ -6,4 +6,5 @@ export type RootStackParamList = {
     ResetPassword: undefined;
     ConfirmCode: undefined;
     ChangePassword: undefined
+    MainTabs: undefined;
 };
