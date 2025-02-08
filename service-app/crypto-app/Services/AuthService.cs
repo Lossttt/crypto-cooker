@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using crypto_app.Core.DataTransferObjects;
@@ -21,6 +22,7 @@ namespace crypto_app.Services
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenFactory _tokenFactory;
         private readonly IJwtFactory _jwtFactory;
+        private readonly IEmailService _emailService;
         private readonly ILogger<AuthService> _logger;
         private const double EXPIRE_DEFAULT = 5;
 
@@ -31,6 +33,7 @@ namespace crypto_app.Services
             SignInManager<ApplicationUser> signInManager,
             ITokenFactory tokenFactory,
             IJwtFactory jwtFactory,
+            IEmailService emailService,
             ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
@@ -39,6 +42,7 @@ namespace crypto_app.Services
             _signInManager = signInManager;
             _tokenFactory = tokenFactory;
             _jwtFactory = jwtFactory;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -133,6 +137,14 @@ namespace crypto_app.Services
                 var user = UserMapper.MapToUser(request, appUser.Id);
                 await _userRepository.AddUserAsync(user);
                 var response = UserMapper.MapToUserRegistrationResponse(appUser, user);
+
+                // Generate verification token
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
+                var verificationUrl = $"{_configuration["AppSettings:ClientUrl"]}/verify-email?userId={appUser.Id}&token={WebUtility.UrlEncode(token)}";
+
+                // Send verification email
+                await _emailService.SendAccountVerificationEmailAsync(appUser.Email!, verificationUrl, appUser.UserName ?? "User");
+
                 return (true, response, null);
             }
             else

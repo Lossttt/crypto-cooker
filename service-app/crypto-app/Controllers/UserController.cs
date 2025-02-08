@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using crypto_app.Config.API;
 using crypto_app.Core.Constants;
+using crypto_app.Core.Entities.Users;
 using crypto_app.Core.Models.Requests.Authentication;
 using crypto_app.Core.Models.Requests.PasswordReset;
 using crypto_app.Core.Models.Responses.Authentication;
@@ -11,6 +12,7 @@ using crypto_app.Core.Models.Responses.User;
 using crypto_app.Infrastructure.Repositories.Interfaces;
 using crypto_app.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace crypto_app.Controllers
@@ -23,19 +25,22 @@ namespace crypto_app.Controllers
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IUserRepository _userRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<UserController> _logger;
 
         public UserController(
             IAuthService authService,
             ITokenService tokenService,
             IEmailService emailService,
-            IUserRepository userRepository, 
+            IUserRepository userRepository,
+            UserManager<ApplicationUser> userManager,
             ILogger<UserController> logger)
         {
             _authService = authService;
             _tokenService = tokenService;
             _emailService = emailService;
             _userRepository = userRepository;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -188,6 +193,37 @@ namespace crypto_app.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while resetting password.");
+                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+            }
+        }
+
+        [HttpGet(ApiRoutes.Users.VerifyAccount)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyAccount([FromQuery] string userId, [FromQuery] string token)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return BadRequest(new { Message = "Invalid user ID" });
+                }
+
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+                if (result.Succeeded)
+                {
+                    return Ok(new { Message = "Email verified successfully" });
+                }
+                else
+                {
+                    return BadRequest(new { Message = "Email verification failed" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while verifying email.");
                 return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
             }
         }
