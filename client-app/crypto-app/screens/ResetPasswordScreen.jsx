@@ -6,19 +6,22 @@ import { theme } from "../shared/styles/theme";
 import { fonts } from "../shared/styles/font";
 import LoadingScreen from "./emptyStates/LoadingScreen";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAuthContext } from "../contexts/authContext";
 
 const ResetPasswordScreen = () => {
     const navigation = useNavigation();
-    const [email, setEmail] = useState('');
+    const { setEmail } = useAuthContext();
+    const [emailInput, setEmailInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
+    const animationUrl = require('../assets/animations/airplane-loader.json');
     const handleGoBack = () => {
         navigation.goBack();
     };
 
     const handleResetPassword = async () => {
-        if (!email) {
+        if (!emailInput) {
             Alert.alert('Oops!..', 'Please enter your email');
             return;
         }
@@ -26,16 +29,15 @@ const ResetPasswordScreen = () => {
         setLoading(true);
 
         try {
-            const response = await authService.resetPassword(email);
-            console.log(response);
+            const response = await authService.resetPassword(emailInput);
 
             if (response.message) {
-                setMessage('A reset email has been sent to your email address with further instructions.');
+                setEmail(emailInput);
+                setMessage('A reset email has been sent to your email address with further instructions. Please wait for us to redirect you to the next screen.');
 
                 setTimeout(() => {
-                    console.log('Navigating to ConfirmCode screen with email:', email);
-                    navigation.navigate('ConfirmCode', { email });
-                }, 2000);
+                    navigation.navigate('ConfirmCode');
+                }, 6000);
 
             } else {
                 Alert.alert('Oops!.. Something went wrong', response.message);
@@ -48,7 +50,7 @@ const ResetPasswordScreen = () => {
     };
 
     if (loading) {
-        return <LoadingScreen title="Processing" message="Please wait while we send the reset email." />;
+        return <LoadingScreen title="Processing" message="Please wait while we send the reset email." animationUrl={animationUrl}/>;
     }
 
     return (
@@ -66,8 +68,8 @@ const ResetPasswordScreen = () => {
                 <TextInput
                     style={styles.textInput}
                     placeholder="Enter your email"
-                    value={email}
-                    onChangeText={setEmail}
+                    value={emailInput}
+                    onChangeText={setEmailInput}
                     keyboardType="email-address"
                 />
             </View>
@@ -77,6 +79,7 @@ const ResetPasswordScreen = () => {
             </TouchableOpacity>
 
             {message && <Text style={styles.successMessage}>{message}</Text>}
+            {loading && <LoadingScreen title="Processing" message="Please wait while we send the reset email." />}
         </View>
     );
 };

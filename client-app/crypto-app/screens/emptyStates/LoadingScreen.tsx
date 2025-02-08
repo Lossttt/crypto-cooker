@@ -8,7 +8,7 @@ import { fonts } from '../../shared/styles/font';
 interface LoadingScreenProps {
     title: string;
     message: string;
-    animationUrl: string;
+    animationUrl: any;
 }
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, message, animationUrl }) => {

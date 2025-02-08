@@ -6,33 +6,40 @@ import { theme } from '../shared/styles/theme';
 import { fonts } from '../shared/styles/font';
 import LottieView from 'lottie-react-native';
 import { authService } from '../https/authService';
-import { RouteProp } from '@react-navigation/native';
+import { useAuthContext } from '../contexts/authContext';
 
-type ConfirmCodeScreenRouteProp = RouteProp<{ params: { email: string } }, 'params'>;
-
-const ConfirmCodeScreen = ({ route }: { route: ConfirmCodeScreenRouteProp }) => {
-    const email = route.params.email;
-    const [code, setCode] = useState('');
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+const ConfirmCodeScreen = () => {
+    const { email, setCode } = useAuthContext();
+    const [codeInput, setCodeInput] = useState('');
+    const [isReady, setIsReady] = useState(false);
     const [animationError, setAnimationError] = useState(false);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
+        if (email) {
+            setIsReady(true);
+        }
         try {
-            console.log(route.params);
             require('../assets/animations/confirmation-code.json');
         } catch (error) {
             setAnimationError(true);
+            console.error("Lottie animation error:", error);
         }
-    }, []);
+    }, [email]);
 
     const handleVerifyCode = async () => {
-        const resultMessage = await authService.verifyCode(email, code);
+        const resultMessage = await authService.verifyCode(email, codeInput);
         if (resultMessage) {
-            navigation.navigate('ChangePassword', { email, token: code });
+            setCode(codeInput);
+            navigation.navigate('ChangePassword');
         } else {
             Alert.alert('Invalid code', 'The code entered is invalid or expired.');
         }
     };
+
+    if (!isReady) {
+        return <View style={styles.loadingContainer}><Text>Loading...</Text></View>;
+    }
 
     return (
         <View style={styles.container}>
@@ -48,14 +55,17 @@ const ConfirmCodeScreen = ({ route }: { route: ConfirmCodeScreenRouteProp }) => 
             )}
 
             <Text style={styles.heading}>Enter confirmation code</Text>
-            <Text style={styles.subHeadingText}>We've sent a confirmation code to <Text style={{ fontFamily: fonts.SemiBold, color: theme.primaryColor }}>{email}</Text>. Please enter it below to proceed.</Text>
+            <Text style={styles.subHeadingText}>
+                We've sent a confirmation code to {"\n"} <Text style={{ fontFamily: fonts.SemiBold, color: theme.primaryColor }}>{email}</Text>.
+                Please enter it below to proceed.
+            </Text>
 
             <TextInput
                 style={styles.input}
                 placeholder="Enter code"
                 keyboardType="numeric"
-                value={code}
-                onChangeText={setCode}
+                value={codeInput}
+                onChangeText={setCodeInput}
             />
 
             <TouchableOpacity style={styles.button} onPress={handleVerifyCode}>
@@ -92,7 +102,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     subHeadingText: {
-        fontSize: 12,
+        fontSize: 14,
         color: theme.secondaryColor,
         fontFamily: fonts.Regular,
         textAlign: "center",
@@ -120,19 +130,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: fonts.SemiBold,
     },
-    loadingText: {
-        fontSize: 14,
-        color: theme.primaryColor,
-        fontFamily: fonts.Regular,
-        textAlign: 'center',
-        marginTop: 20,
-    },
-    messageText: {
-        fontSize: 14,
-        color: theme.primaryColor,
-        fontFamily: fonts.Regular,
-        textAlign: 'center',
-        marginTop: 20,
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

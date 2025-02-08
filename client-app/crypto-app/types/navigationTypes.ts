@@ -4,6 +4,6 @@ export type RootStackParamList = {
     Register: undefined;
     LandingPage: undefined;
     ResetPassword: undefined;
-    ConfirmCode: { email: string };
-    ChangePassword: { email: string; code: string };
+    ConfirmCode: undefined;
+    ChangePassword: undefined
 };

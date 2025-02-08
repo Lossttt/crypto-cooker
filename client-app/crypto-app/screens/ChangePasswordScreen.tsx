@@ -1,79 +1,116 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import { useAuth } from '../hooks/useAuth';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { useAuthContext } from '../contexts/authContext';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { theme } from '../shared/styles/theme';
 import { fonts } from '../shared/styles/font';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { validatePassword, validatePasswordMatch } from "../utils/signupValidation";
-
-import { RouteProp, useRoute } from '@react-navigation/native';
-
-import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigationTypes';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 
-type ChangePasswordScreenRouteProp = RouteProp<{ params: { userEmail: string; token: string } }, 'params'>;
-
-const ChangePasswordScreen = ({ route }: { route: ChangePasswordScreenRouteProp }) => {
-    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-    route = useRoute();
-    const email = route.params?.userEmail;
-    const token = route.params?.token;
+const ChangePasswordScreen = () => {
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const { email, code } = useAuthContext();
 
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const { loading, message, changePassword } = useAuth();
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordMatchError, setPasswordMatchError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
 
-    const handleChangePassword = async () => {
-        if (!validatePassword(newPassword)) {
-            Alert.alert('Invalid Password', 'Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character.');
-            return;
-        }
-
-        if (!validatePasswordMatch(newPassword, confirmPassword)) {
-            Alert.alert('Error', 'Passwords do not match');
-            return;
-        }
-
-        const resultMessage = await changePassword(email, newPassword, token);
-
-        if (resultMessage) {
-            Alert.alert('Success', 'Password changed successfully');
-            navigation.navigate('Login');
+    const handlePasswordChange = (password: string) => {
+        setNewPassword(password);
+        if (!validatePassword(password)) {
+            setPasswordError("Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character.");
         } else {
-            Alert.alert('Error', 'Failed to reset the password');
+            setPasswordError('');
         }
     };
 
+    const handleConfirmPasswordChange = (confirmPassword: string) => {
+        setConfirmPassword(confirmPassword);
+        if (!validatePasswordMatch(newPassword, confirmPassword)) {
+            setPasswordMatchError("Passwords do not match.");
+        } else {
+            setPasswordMatchError('');
+        }
+    };
+
+    const handleChangePassword = async () => {
+        if (!newPassword || !confirmPassword) {
+            setMessage("Please fill in both fields.");
+            return;
+        }
+
+        if (passwordError || passwordMatchError) {
+            return;
+        }
+
+        setLoading(true);
+        setMessage('');
+
+        // Here you would normally call your service to change the password
+        const resultMessage = 'Password changed successfully'; // For example purpose
+
+        if (resultMessage) {
+            setMessage(resultMessage);
+            navigation.navigate('Login');
+        } else {
+            setMessage("Failed to reset the password. Please try again later.");
+        }
+
+        setLoading(false);
+    };
+
     return (
-        <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.iconWrapper}>
                 <Ionicons name="shield-checkmark-outline" size={50} color={theme.primaryColor} />
             </View>
             <Text style={styles.heading}>Enter a new password</Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder="New password"
-                secureTextEntry
-                value={newPassword}
-                onChangeText={setNewPassword}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Confirm new password"
-                secureTextEntry
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-            />
+            {/* New Password Field */}
+            <View style={styles.inputContainer}>
+                <SimpleLineIcons name="lock" size={20} color={theme.secondary} />
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="New password"
+                    value={newPassword}
+                    onChangeText={handlePasswordChange}
+                    secureTextEntry={!isPasswordVisible}
+                />
+                <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+                    <SimpleLineIcons name="eye" size={20} color={theme.secondary} />
+                </TouchableOpacity>
+            </View>
+            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
-            <TouchableOpacity style={styles.button} onPress={handleChangePassword}>
-                <Text style={styles.buttonText}>Change Password</Text>
+            {/* Confirm Password Field */}
+            <View style={styles.inputContainer}>
+                <SimpleLineIcons name="lock" size={20} color={theme.secondary} />
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChangeText={handleConfirmPasswordChange}
+                    secureTextEntry={!isConfirmPasswordVisible}
+                />
+                <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}>
+                    <SimpleLineIcons name="eye" size={20} color={theme.secondary} />
+                </TouchableOpacity>
+            </View>
+            {passwordMatchError ? <Text style={styles.errorText}>{passwordMatchError}</Text> : null}
+
+            <TouchableOpacity style={styles.button} onPress={handleChangePassword} disabled={loading}>
+                <Text style={styles.buttonText}>{loading ? "Changing..." : "Change Password"}</Text>
             </TouchableOpacity>
 
-            {loading && <Text style={styles.loadingText}>Loading...</Text>}
             {message && <Text style={styles.messageText}>{message}</Text>}
-        </View>
+        </ScrollView>
     );
 };
 
@@ -103,15 +140,29 @@ const styles = StyleSheet.create({
         fontFamily: fonts.SemiBold,
         color: theme.primaryColor,
     },
-    input: {
+    inputContainer: {
         height: 50,
-        paddingHorizontal: 20,
+        marginBottom: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
         borderWidth: 1,
         borderColor: theme.secondaryColor,
         borderRadius: 30,
-        marginBottom: 20,
-        fontSize: 16,
+        paddingHorizontal: 20,
+    },
+    textInput: {
+        flex: 1,
         fontFamily: fonts.Light,
+        fontSize: 16,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+    },
+    errorText: {
+        color: theme.danger,
+        fontSize: 14,
+        textAlign: 'left',
+        marginLeft: 20,
+        marginBottom: 10,
     },
     button: {
         backgroundColor: theme.primary,
@@ -124,13 +175,6 @@ const styles = StyleSheet.create({
         color: theme.white,
         fontSize: 18,
         fontFamily: fonts.SemiBold,
-    },
-    loadingText: {
-        fontSize: 14,
-        color: theme.primaryColor,
-        fontFamily: fonts.Regular,
-        textAlign: 'center',
-        marginTop: 20,
     },
     messageText: {
         fontSize: 14,

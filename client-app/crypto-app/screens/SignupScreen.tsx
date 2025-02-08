@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { theme } from "../shared/styles/theme";
 import { fonts } from "../shared/styles/font";
 import { signUp } from "../https/userService";
@@ -8,20 +8,20 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigationTypes";
-
 import { validateEmail, validatePhone, validatePassword, validatePasswordMatch } from "../utils/signupValidation";
 
 const SignUpScreen = () => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [email, setEmail] = useState<string>('');
-    const [phoneNumber, setPhoneNumber] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
+    const [email, setEmail] = useState<string>("");
+    const [phoneNumber, setPhoneNumber] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
     const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
     const [isPhoneValid, setIsPhoneValid] = useState<boolean>(false);
     const [arePasswordsMatching, setArePasswordsMatching] = useState<boolean>(false);
     const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const animationUrl = require("../assets/animations/airplane-loader.json");
 
@@ -30,34 +30,43 @@ const SignUpScreen = () => {
     };
 
     const handleEmailChange = (email: string): void => {
-        setIsEmailValid(validateEmail(email));
         setEmail(email);
+        if (email.length > 3) {
+            setIsEmailValid(validateEmail(email));
+        }
     };
 
     const handlePhoneChange = (phone: string): void => {
-        setIsPhoneValid(validatePhone(phone));
         setPhoneNumber(phone);
+        if (phone.length >= 10) {
+            setIsPhoneValid(validatePhone(phone));
+        }
     };
 
     const handlePasswordChange = (password: string, confirmPassword: string): void => {
-        setIsPasswordValid(validatePassword(password));
-        setArePasswordsMatching(validatePasswordMatch(password, confirmPassword));
         setPassword(password);
         setPasswordConfirmation(confirmPassword);
+        if (password.length >= 8) {
+            setIsPasswordValid(validatePassword(password));
+        }
+        if (password === confirmPassword) {
+            setArePasswordsMatching(true);
+        } else {
+            setArePasswordsMatching(false);
+        }
     };
 
     const handleSignUp = async () => {
         if (!email || !phoneNumber || !password || !passwordConfirmation) {
-            Alert.alert("Validation Error", "Please fill in all the required fields.");
             return;
         }
 
-        if (!isEmailValid || !isPhoneValid || !isPasswordValid || !arePasswordsMatching) {
-            Alert.alert("Validation Error", "Please ensure all fields are filled correctly.");
+        if (!isPasswordValid || !isEmailValid || !isPhoneValid || !arePasswordsMatching) {
             return;
         }
 
         setLoading(true);
+        setErrorMessage("");  // Reset any previous error message
 
         const signUpRequest = {
             email,
@@ -68,22 +77,16 @@ const SignUpScreen = () => {
 
         try {
             const response = await signUp(signUpRequest);
-    
-            setTimeout(() => {
-                if (response.email && response.userId) {
-                    Alert.alert("Sign up Successful", "Welcome to Crypto Cooker! A verification email has been sent to your email address.");
-                    handleGoBack();
-                } else {
-                    Alert.alert("Oops!.. Something went wrong", "An error occurred while signing up. Please try again.");
-                }
-                setLoading(false);
-            }, 3000);
+
+            if (response?.email && response?.userId) {
+                navigation.goBack();
+            } else {
+                setErrorMessage("An error occurred while signing up. Please try again.");
+            }
         } catch (error) {
-            console.log(error);
-            setTimeout(() => {
-                Alert.alert("Oops!.. Something went wrong", "An error occurred while signing up. Please try again later.");
-                setLoading(false);
-            }, 3000);
+                setErrorMessage("An error occurred while signing up. Please try again later.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -93,8 +96,8 @@ const SignUpScreen = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity style={styles.backButtonWrapper}>
-                <Ionicons name="arrow-back-outline" color={theme.primary} size={25} onPress={() => handleGoBack()} />
+            <TouchableOpacity style={styles.backButtonWrapper} onPress={handleGoBack}>
+                <Ionicons name="arrow-back-outline" color={theme.primary} size={25} />
             </TouchableOpacity>
             <Text style={styles.headingText}>Create Your Account</Text>
 
@@ -109,6 +112,9 @@ const SignUpScreen = () => {
                 />
                 {isEmailValid && <Ionicons name="checkmark-done-outline" size={20} color={theme.buttonBackground} />}
             </View>
+            {!isEmailValid && email.length > 3 && (
+                <Text style={styles.errorText}>Please enter a valid email address.</Text>
+            )}
 
             <View style={styles.inputContainer}>
                 <SimpleLineIcons name="phone" size={20} color={theme.primary} />
@@ -121,6 +127,9 @@ const SignUpScreen = () => {
                 />
                 {isPhoneValid && <Ionicons name="checkmark-done-outline" size={20} color={theme.buttonBackground} />}
             </View>
+            {!isPhoneValid && phoneNumber.length >= 10 && (
+                <Text style={styles.errorText}>Please enter a valid phone number.</Text>
+            )}
 
             <View style={styles.inputContainer}>
                 <SimpleLineIcons name="lock" size={20} color={theme.primary} />
@@ -133,6 +142,11 @@ const SignUpScreen = () => {
                 />
                 {isPasswordValid && <Ionicons name="checkmark-done-outline" size={20} color={theme.buttonBackground} />}
             </View>
+            {!isPasswordValid && password.length >= 8 && (
+                <Text style={styles.errorText}>
+                    Password must be at least 8 characters long, contain uppercase, lowercase, number, and special character.
+                </Text>
+            )}
 
             <View style={styles.inputContainer}>
                 <SimpleLineIcons name="lock" size={20} color={theme.primary} />
@@ -145,6 +159,11 @@ const SignUpScreen = () => {
                 />
                 {arePasswordsMatching && <Ionicons name="checkmark-done-outline" size={20} color={theme.buttonBackground} />}
             </View>
+            {!arePasswordsMatching && passwordConfirmation.length > 0 && (
+                <Text style={styles.errorText}>Passwords do not match.</Text>
+            )}
+
+            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
             <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
                 <Text style={styles.signUpButtonText}>Sign Up</Text>
@@ -196,6 +215,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 5,
         paddingHorizontal: 10,
+    },
+    errorText: {
+        color: theme.danger,
+        fontSize: 14,
+        textAlign: "left",
+        marginLeft: 20,
+        marginBottom: 10,
     },
     signUpButton: {
         backgroundColor: theme.primary,

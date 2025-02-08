@@ -37,7 +37,7 @@ const LoginScreen = () => {
 
     const handleSignIn = async () => {
         setLoading(true);
-
+    
         const request: SignInRequest = { email, password };
         const validationError = validateSignInRequest(request);
         if (validationError) {
@@ -45,8 +45,15 @@ const LoginScreen = () => {
             setLoading(false);
             return;
         }
-
+    
         try {
+            // const isVerified = await authService.isAccountVerified(email);
+            // if (!isVerified) {
+            //     Alert.alert('Account not verified', 'Please verify your account before signing in. An email has been sent to your email address.');
+            //     setLoading(false);
+            //     return;
+            // }
+    
             const response = await authService.signIn(request);
             if (response.accessToken && response.refreshToken) {
                 setTimeout(() => {

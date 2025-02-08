@@ -17,4 +17,5 @@ export const theme = {
     primary: '#45484A',
     secondary: '#AEB5BB',
     gray: '#D9D9D9',
+    danger: '#FF0000',
 };
