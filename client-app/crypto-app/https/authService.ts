@@ -66,5 +66,15 @@ export const authService = {
         } catch (error) {
             handleApiError(error);
         }
+    },
+
+    async isAccountVerified(email: string): Promise<boolean> {
+        try {
+            const response = await axios.post(`${API_URL}/users/verify/check`, { email });
+            return response.data.isVerified;
+        } catch (error) {
+            handleApiError(error);
+            return false;
+        }
     }
 };

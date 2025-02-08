@@ -78,7 +78,7 @@ namespace crypto_app.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(LogEvent.Processing, ex, "General error while authenticating.");
-                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+                return BadRequest(new { Message = "An error occurred while processing your request." });
             }
         }
 
@@ -112,7 +112,7 @@ namespace crypto_app.Controllers
             catch (Exception e)
             {
                 _logger.LogError(LogEvent.Processing, e, "General error while registering user");
-                return BadRequest();
+                return BadRequest(new { Message = "An error occurred while processing your request." });
             }
         }
 
@@ -147,7 +147,7 @@ namespace crypto_app.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while requesting password reset.");
-                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+                return BadRequest(new { Message = "An error occurred while processing your request." });
             }
         }
 
@@ -170,7 +170,7 @@ namespace crypto_app.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while verifying reset token.");
-                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+                return BadRequest(new { Message = "An error occurred while processing your request." });
             }
         }
 
@@ -193,7 +193,7 @@ namespace crypto_app.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while resetting password.");
-                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+                return BadRequest(new { Message = "An error occurred while processing your request." });
             }
         }
 
@@ -224,7 +224,39 @@ namespace crypto_app.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while verifying email.");
-                return StatusCode(500, new { Message = "An internal error occurred while processing your request." });
+                return BadRequest(new { Message = "An error occurred while processing your request." });
+            }
+        }
+
+        [HttpPost(ApiRoutes.Users.CheckVerification)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckVerification([FromBody] CheckVerificationRequest request)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(request.Email);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "User not found" });
+                }
+
+                var isEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+                if (isEmailConfirmed)
+                {
+                    return Ok(new { Message = "Email is verified" });
+                }
+                else
+                {
+                    return Ok(new { Message = "Email is not verified" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking email verification.");
+                return BadRequest(new { Message = "An error occurred while processing your request." });
             }
         }
     }
