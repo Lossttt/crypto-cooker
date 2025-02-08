@@ -9,7 +9,14 @@ namespace crypto_app.Config.API
 
         public static class Users
         {
-            // Route: /api/v1/users
+            public const string Index = Base + "/users";  
+            public const string Authenticate = Index + "/authenticate";     
+            public const string Register = Index + "/register"; 
+            public const string ResetPassword = Index + "/reset-password";
+            public const string RequestPasswordReset = Index + "/reset-password/request";
+            public const string VerifyResetToken = Index + "/reset-password/verify";
+            public const string VerifyAccount = Index + "/verify";
+            public const string CheckVerification = Index + "/verify/check";
         }
     }
 }

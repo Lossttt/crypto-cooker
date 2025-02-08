@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Animated } f
 import { theme } from '../shared/styles/theme';
 import Header from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
+import { fonts } from '../shared/styles/font';
 
 const LandingScreen = () => {
     const [fadeAnim] = useState(new Animated.Value(0));
@@ -27,7 +28,7 @@ const LandingScreen = () => {
                 <Text style={styles.subtitle}>Your hub for tracking and analyzing the crypto market with Crypto Cooker</Text>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('Signup')}  // Navigate to the signup screen
+                    onPress={() => navigation.navigate('Register')}  // Navigate to the signup screen
                 >
                     <Text style={styles.buttonText}>Get Started!</Text>
                 </TouchableOpacity>
@@ -64,12 +65,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 20,
         letterSpacing: 1,
+        fontFamily: fonts.SemiBold,
     },
     subtitle: {
         fontSize: 18,
         color: theme.textSecondary,
         textAlign: 'center',
         marginBottom: 30,
+        fontFamily: fonts.Regular,
     },
     button: {
         backgroundColor: theme.buttonBackground,
@@ -85,7 +88,7 @@ const styles = StyleSheet.create({
     },
     buttonSecondary: {
         backgroundColor: 'transparent',
-        borderColor: theme.buttonBackground,
+        borderColor: theme.primary,
         borderWidth: 2,
         paddingVertical: 15,
         paddingHorizontal: 50,
@@ -95,14 +98,15 @@ const styles = StyleSheet.create({
         transition: 'background-color 0.3s',
     },
     buttonText: {
-        fontSize: 18,
-        color: theme.buttonText,
-        fontWeight: 'bold',
+        color: theme.white,
+        fontSize: 15,
+        fontFamily: fonts.SemiBold,
+        textAlign: "center",
     },
     buttonSecondaryText: {
-        fontSize: 18,
+        fontSize: 15,
         color: theme.textPrimary,
-        fontWeight: 'bold',
+        fontFamily: fonts.Bold,
     },
 });
 

@@ -6,12 +6,11 @@ export interface SignInRequest {
 export interface SignInResponse {
     success: boolean;
     message: string;
-    token?: string; 
-    user?: {
-        id: string;
-        username: string;
-        email: string;
-        createdAt: string;
-        updatedAt: string;
+    accessToken?: {
+        token: string;
+        expiredIn: number;
     };
+    refreshToken?: string;
+    lastLogin?: string;
+    firstName?: string;
 }
