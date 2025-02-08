@@ -59,5 +59,38 @@ namespace crypto_app.Services
                 throw;
             }
         }
+
+        public async Task SendAccountVerificationEmailAsync(string email, string verificationUrl, string firstName)
+        {
+            try
+            {
+                var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Services/Templates/account-verification-email-template.html");
+                var emailBody = await File.ReadAllTextAsync(templatePath);
+                emailBody = emailBody.Replace("{{VERIFICATION_URL}}", verificationUrl);
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_emailOptions.SmtpUser, "Crypto Cooker"),
+                    Subject = "Account Verification",
+                    Body = emailBody,
+                    IsBodyHtml = true
+                };
+                mailMessage.To.Add(email);
+
+                using var smtpClient = new SmtpClient(_emailOptions.SmtpServer, _emailOptions.SmtpPort)
+                {
+                    Credentials = new NetworkCredential(_emailOptions.SmtpUser, _emailOptions.SmtpPass),
+                    EnableSsl = true
+                };
+
+                await smtpClient.SendMailAsync(mailMessage);
+                _logger.LogInformation("Account verification email sent successfully to {Email}", email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred while sending account verification email.");
+                throw;
+            }
+        }
     }
 }

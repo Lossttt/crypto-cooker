@@ -8,5 +8,6 @@ namespace crypto_app.Services.Interfaces
     public interface IEmailService
     {
         Task SendPasswordResetEmailAsync(string email, string token, string firstName);
+        Task SendAccountVerificationEmailAsync(string email, string token, string firstName);
     }
 }
