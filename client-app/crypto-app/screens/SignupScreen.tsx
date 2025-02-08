@@ -71,7 +71,7 @@ const SignUpScreen = () => {
     
             setTimeout(() => {
                 if (response.email && response.userId) {
-                    Alert.alert("Sign up Successful", "Welcome to Crypto Cooker!");
+                    Alert.alert("Sign up Successful", "Welcome to Crypto Cooker! A verification email has been sent to your email address.");
                     handleGoBack();
                 } else {
                     Alert.alert("Oops!.. Something went wrong", "An error occurred while signing up. Please try again.");
