@@ -58,7 +58,7 @@ const LoginScreen = () => {
             if (response.accessToken && response.refreshToken) {
                 setTimeout(() => {
                     setLoading(false);
-                    navigation.navigate("LandingPage");
+                    navigation.navigate('MainTabs');
                 }, 2000);
             } else {
                 Alert.alert('Oops!.. Login failed', response.message);
