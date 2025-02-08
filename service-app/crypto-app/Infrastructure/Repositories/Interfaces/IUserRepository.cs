@@ -15,6 +15,7 @@ namespace crypto_app.Infrastructure.Repositories.Interfaces
         Task<IdentityResult> UpdateAppUser(ApplicationUser appUser);
         void AddRefreshToken(string token, string userId, double daysToExpire);
         Task AddUserAsync(User user);
+        Task<bool> GetVerificationStatus(string email);
 
     }
 }

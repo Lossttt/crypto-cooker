@@ -16,6 +16,7 @@ namespace crypto_app.Config.API
             public const string RequestPasswordReset = Index + "/reset-password/request";
             public const string VerifyResetToken = Index + "/reset-password/verify";
             public const string VerifyAccount = Index + "/verify";
+            public const string CheckVerification = Index + "/verify/check";
         }
     }
 }

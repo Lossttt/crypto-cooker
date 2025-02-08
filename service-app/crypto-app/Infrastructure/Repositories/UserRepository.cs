@@ -112,5 +112,24 @@ namespace crypto_app.Infrastructure.Repositories
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<bool> GetVerificationStatus(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                _logger.LogError("Email is null or empty");
+                throw new ArgumentNullException(nameof(email));
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                _logger.LogError("User not found with email: {Email}", email);
+                throw new Exception("User not found");
+            }
+
+            return user?.EmailConfirmed ?? false;
+        }
     }
 }
